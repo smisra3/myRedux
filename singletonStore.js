@@ -37,7 +37,10 @@ module.exports = (function() {
     function dispatch(action) {
       if (action.type === "undefined")
         throw new Error("Action cannot have type as undefined");
-      var newState = reducer(Object.assign({}, currentState), action);
+      var newState = reducer(
+        Object.assign({}, currentState),
+        Object.assign({}, action)
+      );
       subscribers.forEach(function(subscriber) {
         subscriber(currentState, newState);
       });
@@ -51,7 +54,7 @@ module.exports = (function() {
     function combineReducers(reducers) {
       finalReducerSet = Object.assign(finalReducerSet, reducers);
       for (var key in reducers) {
-        finalReducerSet = reducers[key](cu[key], action);
+        finalReducerSet = reducers[key](currentState[key], action);
       }
       return finalReducerSet;
     }
@@ -66,7 +69,7 @@ module.exports = (function() {
   }
   return {
     getStore: function(reducer) {
-      if (!store) return (store = createStore(reducer));
+      if (!store) store = createStore(reducer);
       return store;
     }
   };
