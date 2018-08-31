@@ -21,13 +21,12 @@ module.exports = (function() {
      */
     function subscribe(fn) {
       subscribers.push(fn);
-    }
-
-    /**
-     * Removes a method from the listeners array
-     */
-    function unsubscribe(fn) {
-      subscribers.splice(subscribers.indexOf(fn), 1);
+      /**
+       * Removes a method from the listeners array
+       */
+      return function(fn) {
+        subscribers.splice(subscribers.indexOf(fn), 1);
+      };
     }
 
     /**
@@ -35,8 +34,10 @@ module.exports = (function() {
      * @param {Object} action Is the action dispatched to the store.
      */
     function dispatch(action) {
-      if (action.type === "undefined")
-        throw new Error("Action cannot have type as undefined");
+      if (typeof action !== "object" || action.type === "undefined")
+        throw new Error(
+          "Action must be a plain object where type must not be undefined"
+        );
       var newState = reducer(
         Object.assign({}, currentState),
         Object.assign({}, action)
@@ -54,7 +55,7 @@ module.exports = (function() {
     function combineReducers(reducers) {
       finalReducerSet = Object.assign(finalReducerSet, reducers);
       for (var key in reducers) {
-        finalReducerSet = reducers[key](currentState[key], action);
+        finalReducerSet = reducers[key](currentState[key], action); // FIX THIS
       }
       return finalReducerSet;
     }
